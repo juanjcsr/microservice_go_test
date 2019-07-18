@@ -16,6 +16,7 @@ const port = ":50051"
 
 type repository interface {
 	Create(consignment *pb.Consignment) (*pb.Consignment, error)
+	GetAll() []*pb.Consignment
 }
 
 // Repository = simulates a datastore
@@ -33,6 +34,10 @@ func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, er
 	return consignment, nil
 }
 
+func (repo *Repository) GetAll() []*pb.Consignment {
+	return repo.consignments
+}
+
 //implements all of the methods to satisfy the service defined
 // in the protobuf definition.
 type service struct {
@@ -46,6 +51,11 @@ func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment) (*
 	}
 
 	return &pb.Response{Created: true, Consignment: consignment}, nil
+}
+
+func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest) (*pb.Response, error) {
+	consignments := s.repo.GetAll()
+	return &pb.Response{Consignments: consignments}, nil
 }
 
 func main() {
